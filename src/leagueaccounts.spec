@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+# When building, use: pyinstaller --distpath ../dist leagueaccounts.spec
 
 a = Analysis(
     ['main.py'],

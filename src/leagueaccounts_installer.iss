@@ -3,12 +3,12 @@ AppName=League Accounts
 AppVersion=1.0
 DefaultDirName={autopf}\LeagueAccounts
 DefaultGroupName=League Accounts
-OutputDir=dist
+OutputDir=../dist
 OutputBaseFilename=LeagueAccountsSetup
 SetupIconFile=icon.ico
 
 [Files]
-Source: "dist\\leagueaccounts.exe"; DestDir: "{app}"
+Source: "..\\dist\\leagueaccounts.exe"; DestDir: "{app}"
 
 [Icons]
 Name: "{group}\\League Accounts"; Filename: "{app}\\leagueaccounts.exe"
