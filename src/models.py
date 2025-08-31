@@ -12,5 +12,6 @@ class Account:
     tier: str = 'Unranked'
     division: str = ''
     lp: str = ''
+    level: str = ''
     reached_last_season: str = 'N/A'
     finished_last_season: str = 'N/A' 

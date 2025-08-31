@@ -19,6 +19,49 @@ class RankFetcher:
             tier = 'Unranked'
             division = ''
             lp = ''
+            level = ''
+
+            # Fetch level information
+            level = ''
+            
+            # Try multiple selectors for level information
+            level_selectors = [
+                'div.summonerLevel',
+                'span.summonerLevel',
+                '.summonerLevel',
+                'div[class*="level"]',
+                'span[class*="level"]',
+                '.profile-level',
+                '.summoner-level'
+            ]
+            
+            for selector in level_selectors:
+                level_element = soup.select_one(selector)
+                if level_element:
+                    level_text = level_element.get_text().strip()
+                    # Try different patterns to extract level number
+                    level_patterns = [
+                        r'Level (\d+)',
+                        r'(\d+)',
+                        r'Lvl (\d+)',
+                        r'Lv (\d+)'
+                    ]
+                    for pattern in level_patterns:
+                        level_match = re.search(pattern, level_text)
+                        if level_match:
+                            level = level_match.group(1)
+                            break
+                    if level:
+                        break
+            
+            # If still no level found, try looking in meta tags or other elements
+            if not level:
+                # Look for level in any text containing "Level" or "Lvl"
+                for element in soup.find_all(text=re.compile(r'[Ll]evel|[Ll]vl')):
+                    level_match = re.search(r'[Ll]evel\s*(\d+)|[Ll]vl\s*(\d+)', element)
+                    if level_match:
+                        level = level_match.group(1) or level_match.group(2)
+                        break
 
             lp_div = soup.select_one('div.league-points')
             if lp_div:
@@ -59,6 +102,7 @@ class RankFetcher:
                 'tier': tier,
                 'division': division,
                 'lp': lp,
+                'level': level,
                 'reached_last_season': reached_last_season,
                 'finished_last_season': finished_last_season
             }
@@ -67,6 +111,7 @@ class RankFetcher:
                 'tier': 'Error',
                 'division': '',
                 'lp': '',
+                'level': '',
                 'reached_last_season': '...',
                 'finished_last_season': '...'
             } 

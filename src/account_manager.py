@@ -30,6 +30,7 @@ class AccountManager:
                         tier=acc.get('tier', 'Unranked'),
                         division=acc.get('division', ''),
                         lp=acc.get('lp', ''),
+                        level=acc.get('level', ''),
                         reached_last_season=acc.get('reached_last_season', 'N/A'),
                         finished_last_season=acc.get('finished_last_season', 'N/A')
                     )
@@ -65,6 +66,7 @@ class AccountManager:
             acc.tier = rank_info.get('tier', 'Unranked')
             acc.division = rank_info.get('division', '')
             acc.lp = rank_info.get('lp', '')
+            acc.level = rank_info.get('level', '')
             acc.reached_last_season = rank_info.get('reached_last_season', 'N/A')
             acc.finished_last_season = rank_info.get('finished_last_season', 'N/A')
         self.accounts.sort(key=lambda a: rank_sort_key(a.tier, a.division, a.lp))

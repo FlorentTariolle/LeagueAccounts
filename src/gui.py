@@ -67,7 +67,7 @@ class LeagueAccountManagerGUI:
         search_entry.pack(side='left', fill='x', expand=True, padx=5)
         self.search_var.trace_add('write', lambda *_: self.on_search_change())
 
-        columns = ('Account ID', 'Summoner Name', 'Region', 'Tier', 'Division', 'LP', 'Reached Last Season', 'Finished Last Season', 'Description')
+        columns = ('Account ID', 'Summoner Name', 'Region', 'Level', 'Tier', 'Division', 'LP', 'Reached Last Season', 'Finished Last Season', 'Description')
         self.tree = ttk.Treeview(self.table_frame, columns=columns, show='headings', height=8)
         for col in columns:
             self.tree.heading(col, text=col)
@@ -75,6 +75,8 @@ class LeagueAccountManagerGUI:
                 self.tree.column(col, width=180, anchor='w', stretch=True)
             elif col in ['Reached Last Season', 'Finished Last Season']:
                 self.tree.column(col, width=120, anchor='center', stretch=True)
+            elif col == 'Level':
+                self.tree.column(col, width=60, anchor='center', stretch=True)
             else:
                 self.tree.column(col, width=100, anchor='center', stretch=True)
         self.tree.pack(side='left', fill='both', expand=True)
@@ -233,6 +235,7 @@ class LeagueAccountManagerGUI:
                 new_acc.tier = rank_info.get('tier', 'Unranked')
                 new_acc.division = rank_info.get('division', '')
                 new_acc.lp = rank_info.get('lp', '')
+                new_acc.level = rank_info.get('level', '')
                 new_acc.reached_last_season = rank_info.get('reached_last_season', 'N/A')
                 new_acc.finished_last_season = rank_info.get('finished_last_season', 'N/A')
                 self.manager.save_accounts()
@@ -253,6 +256,7 @@ class LeagueAccountManagerGUI:
             tier = acc.tier or 'Unranked'
             division = acc.division or ''
             lp = acc.lp or ''
+            level = acc.level or ''
             reached_last_season = acc.reached_last_season or 'N/A'
             finished_last_season = acc.finished_last_season or 'N/A'
             if not tier or tier == 'Unranked':
@@ -261,10 +265,13 @@ class LeagueAccountManagerGUI:
                 division = '...'
             if not lp:
                 lp = '...'
+            if not level:
+                level = '...'
             self.tree.insert('', 'end', values=(
                 acc.account_id,
                 acc.name,
                 acc.region_display,
+                level,
                 tier,
                 division,
                 lp,
@@ -338,6 +345,7 @@ class LeagueAccountManagerGUI:
                 acc.tier = rank_info.get('tier', 'Unranked')
                 acc.division = rank_info.get('division', '')
                 acc.lp = rank_info.get('lp', '')
+                acc.level = rank_info.get('level', '')
                 acc.reached_last_season = rank_info.get('reached_last_season', 'N/A')
                 acc.finished_last_season = rank_info.get('finished_last_season', 'N/A')
                 self.manager.save_accounts()
@@ -346,11 +354,12 @@ class LeagueAccountManagerGUI:
                     values = self.tree.item(item, 'values')
                     if values and values[0] == acc.account_id and values[2] == acc.region_display:
                         new_values = list(values)
-                        new_values[3] = acc.tier or '...'
-                        new_values[4] = acc.division or '...'
-                        new_values[5] = acc.lp or '...'
-                        new_values[6] = acc.reached_last_season or 'N/A'
-                        new_values[7] = acc.finished_last_season or 'N/A'
+                        new_values[3] = acc.level or '...'
+                        new_values[4] = acc.tier or '...'
+                        new_values[5] = acc.division or '...'
+                        new_values[6] = acc.lp or '...'
+                        new_values[7] = acc.reached_last_season or 'N/A'
+                        new_values[8] = acc.finished_last_season or 'N/A'
                         self.root.after(0, lambda item=item, vals=new_values: self.tree.item(item, values=vals))
                         # Remove highlight after update
                         self.root.after(0, lambda item=item: self.tree.item(item, tags=()))
@@ -388,7 +397,7 @@ class LeagueAccountManagerGUI:
         row_id = self.tree.identify_row(event.y)
         col_id = self.tree.identify_column(event.x)
         col_num = int(col_id.replace('#', '')) - 1
-        if col_num not in [1, 8]:
+        if col_num not in [1, 9]:
             return
         bbox = self.tree.bbox(row_id, col_id)
         if not bbox:
@@ -411,7 +420,7 @@ class LeagueAccountManagerGUI:
                 if acc.account_id == account_id and acc.region_display == region_display:
                     if col_num == 1:
                         acc.name = new_value
-                    elif col_num == 8:
+                    elif col_num == 9:
                         acc.description = new_value
                     break
             self.manager.save_accounts()
