@@ -127,8 +127,8 @@ class LeagueAccountManagerGUI:
         self.multiadd_text = tk.Text(self.multiadd_frame, height=3, width=60)
         self.multiadd_text.pack(side='left', padx=5, fill='x', expand=True)
         self.multiadd_placeholder = (
-            "AccountID1---InGameName1#TAG---password1\n"
-            "AccountID2---InGameName2#TAG---password2\n"
+            "AccountID1--InGameName1#TAG--password1\n"
+            "AccountID2--InGameName2#TAG--password2\n"
             "..."
         )
         def set_placeholder():
@@ -177,6 +177,7 @@ class LeagueAccountManagerGUI:
         self.help_button.pack(side='top', padx=5, pady=2, anchor='w', fill='x')
 
     def add_account(self):
+        _lazy_imports()
         account_id = self.account_id_entry.get().strip()
         name = self.name_entry.get().strip()
         region_display = self.region_var.get().strip()
@@ -204,43 +205,10 @@ class LeagueAccountManagerGUI:
             description=description
         )
         self.manager.add_account(new_acc)
-        self.display_accounts(self.manager.accounts)
-        self.account_id_entry.delete(0, tk.END)
-        self.name_entry.delete(0, tk.END)
-        self.password_entry.delete(0, tk.END)
-        self.description_entry.delete(0, tk.END)
-
-    def multi_add_accounts(self):
-        def worker():
-            region_display = self.region_var.get().strip()
-            from .utils import REGION_MAP
-            region = REGION_MAP.get(region_display)
-            while True:
-                lines = self.multiadd_text.get('1.0', tk.END).strip().splitlines()
-                if not lines:
-                    break
-                line = lines[0]
-                parts = line.strip().split('---')
-                if len(parts) != 3:
-                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
-                    continue
-                account_id, name, password = [p.strip() for p in parts]
-                if not account_id or not name or not password:
-                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
-                    continue
-                if any(acc.account_id.lower() == account_id.lower() and acc.region == region for acc in self.manager.accounts):
-                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
-                    continue
-                keyring.set_password('LeagueAccounts', f'{region}:{account_id}', password)
-                new_acc = Account(
-                    account_id=account_id,
-                    name=name,
-                    region=region,
-                    region_display=region_display,
-                    password=password,
-                    description=''
-                )
-                self.manager.add_account(new_acc)
+        
+        # Fetch rank information for the new account
+        def fetch_rank_worker():
+            try:
                 rank_info = self.manager.rank_fetcher.fetch_rank(new_acc)
                 new_acc.tier = rank_info.get('tier', 'Unranked')
                 new_acc.division = rank_info.get('division', '')
@@ -249,8 +217,124 @@ class LeagueAccountManagerGUI:
                 new_acc.reached_last_season = rank_info.get('reached_last_season', 'N/A')
                 new_acc.finished_last_season = rank_info.get('finished_last_season', 'N/A')
                 self.manager.save_accounts()
-                self.root.after(0, lambda: self._remove_line_from_multiadd(0))
+                # Update the display in the main thread
                 self.root.after(0, lambda: self.display_accounts(self.manager.accounts))
+            except Exception as e:
+                print(f"Error fetching rank for {account_id}: {e}")
+        
+        threading.Thread(target=fetch_rank_worker, daemon=True).start()
+        
+        # Display accounts immediately (with placeholder rank info)
+        self.display_accounts(self.manager.accounts)
+        self.account_id_entry.delete(0, tk.END)
+        self.name_entry.delete(0, tk.END)
+        self.password_entry.delete(0, tk.END)
+        self.description_entry.delete(0, tk.END)
+
+    def multi_add_accounts(self):
+        def worker():
+            _lazy_imports()
+            region_display = self.region_var.get().strip()
+            from .utils import REGION_MAP
+            region = REGION_MAP.get(region_display)
+            
+            # Get the text content, filtering out placeholder text
+            text_content = self.multiadd_text.get('1.0', tk.END).strip()
+            
+            # Check if content is empty or just placeholder
+            if not text_content:
+                self.root.after(0, lambda: messagebox.showwarning('Input Error', 'Please enter account data in the multi-add field.'))
+                return
+            
+            # Check if it's the placeholder text (compare without trailing newlines)
+            placeholder_stripped = self.multiadd_placeholder.strip()
+            if text_content == placeholder_stripped:
+                self.root.after(0, lambda: messagebox.showwarning('Input Error', 'Please enter account data in the multi-add field.'))
+                return
+            
+            lines = text_content.splitlines()
+            processed_count = 0
+            error_count = 0
+            
+            # Process accounts one by one, removing each line as it's processed
+            while True:
+                # Get current text content (it may have changed as lines are removed)
+                current_text = self.multiadd_text.get('1.0', tk.END).strip()
+                if not current_text or current_text == self.multiadd_placeholder.strip():
+                    break
+                
+                current_lines = current_text.splitlines()
+                if not current_lines:
+                    break
+                
+                # Process the first line
+                line = current_lines[0].strip()
+                if not line:  # Skip empty lines
+                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
+                    continue
+                    
+                # Try both --- and -- as separators
+                if '---' in line:
+                    parts = line.split('---')
+                else:
+                    parts = line.split('--')
+                if len(parts) != 3:
+                    error_count += 1
+                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
+                    continue
+                    
+                account_id, name, password = [p.strip() for p in parts]
+                if not account_id or not name or not password:
+                    error_count += 1
+                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
+                    continue
+                    
+                # Check for duplicates
+                if any(acc.account_id.lower() == account_id.lower() and acc.region == region for acc in self.manager.accounts):
+                    error_count += 1
+                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
+                    continue
+                
+                try:
+                    keyring.set_password('LeagueAccounts', f'{region}:{account_id}', password)
+                    new_acc = Account(
+                        account_id=account_id,
+                        name=name,
+                        region=region,
+                        region_display=region_display,
+                        password=password,
+                        description=''
+                    )
+                    self.manager.add_account(new_acc)
+                    
+                    # Fetch rank information
+                    rank_info = self.manager.rank_fetcher.fetch_rank(new_acc)
+                    new_acc.tier = rank_info.get('tier', 'Unranked')
+                    new_acc.division = rank_info.get('division', '')
+                    new_acc.lp = rank_info.get('lp', '')
+                    new_acc.level = rank_info.get('level', '')
+                    new_acc.reached_last_season = rank_info.get('reached_last_season', 'N/A')
+                    new_acc.finished_last_season = rank_info.get('finished_last_season', 'N/A')
+                    
+                    processed_count += 1
+                    
+                    # Remove the processed line and update display
+                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
+                    self.root.after(0, lambda: self.display_accounts(self.manager.accounts))
+                    self.manager.save_accounts()
+                    
+                except Exception as e:
+                    # Log error information
+                    error_msg = f"Error processing account {account_id}: {str(e)}"
+                    print(error_msg)
+                    error_count += 1
+                    # Remove the error line as well
+                    self.root.after(0, lambda: self._remove_line_from_multiadd(0))
+            
+            # Clear the multi-add field when all accounts are processed
+            if processed_count > 0 or error_count > 0:
+                self.root.after(0, lambda: self._clear_multiadd_field())
+        
         threading.Thread(target=worker, daemon=True).start()
 
     def _remove_line_from_multiadd(self, idx):
@@ -259,6 +343,12 @@ class LeagueAccountManagerGUI:
             del lines[idx]
             self.multiadd_text.delete('1.0', tk.END)
             self.multiadd_text.insert('1.0', '\n'.join(lines))
+
+    def _clear_multiadd_field(self):
+        """Clear the multi-add field and restore placeholder text"""
+        self.multiadd_text.delete('1.0', tk.END)
+        self.multiadd_text.insert('1.0', self.multiadd_placeholder)
+        self.multiadd_text.config(fg='grey')
 
     def display_accounts(self, accounts):
         self.tree.delete(*self.tree.get_children())

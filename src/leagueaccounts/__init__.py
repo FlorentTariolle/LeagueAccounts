@@ -13,16 +13,18 @@ __author__ = "LeagueAccounts Team"
 __description__ = "League of Legends Account Manager"
 
 # Import main components for easy access
-from .main import LeagueAccountApp
+from .gui import LeagueAccountApp
 from .models import Account
 from .account_manager import AccountManager
 from .rank_fetcher import RankFetcher
+from .main import main
 
 __all__ = [
     'LeagueAccountApp',
     'Account', 
     'AccountManager',
     'RankFetcher',
+    'main',
     '__version__',
     '__author__',
     '__description__'
