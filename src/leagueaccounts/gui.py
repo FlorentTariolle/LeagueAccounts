@@ -8,7 +8,11 @@ def _lazy_imports():
     global pyperclip, keyring, pyautogui, time, Image, ImageTk, io, requests
     import pyperclip
     import keyring
-    import pyautogui
+    try:
+        import pyautogui
+    except ImportError as e:
+        print(f"Warning: pyautogui import failed: {e}")
+        pyautogui = None
     import time
     from PIL import Image, ImageTk
     import io
@@ -183,6 +187,8 @@ class LeagueAccountManagerGUI:
         region_display = self.region_var.get().strip()
         password = self.password_entry.get().strip()
         description = self.description_entry.get().strip()
+        
+        
         if not account_id or not name or not region_display or not password:
             messagebox.showerror('Input Error', 'Please fill in all fields.')
             return
@@ -195,16 +201,30 @@ class LeagueAccountManagerGUI:
             if acc.account_id.lower() == account_id.lower() and acc.region == region:
                 messagebox.showerror('Duplicate', 'This account is already added.')
                 return
-        keyring.set_password('LeagueAccounts', f'{region}:{account_id}', password)
-        new_acc = Account(
-            account_id=account_id,
-            name=name,
-            region=region,
-            region_display=region_display,
-            password=password,
-            description=description
-        )
-        self.manager.add_account(new_acc)
+        
+        try:
+            _lazy_imports()
+            keyring.set_password('LeagueAccounts', f'{region}:{account_id}', password)
+            
+            new_acc = Account(
+                account_id=account_id,
+                name=name,
+                region=region,
+                region_display=region_display,
+                password=password,
+                description=description
+            )
+            self.manager.add_account(new_acc)
+            
+        except Exception as e:
+            messagebox.showerror('Add Account Error', 
+                               f'Failed to add account.\n\n'
+                               f'Error: {str(e)}\n\n'
+                               f'This might be a keyring issue. Please check:\n'
+                               f'1. Windows Credential Manager access\n'
+                               f'2. User permissions\n'
+                               f'3. Try running as administrator')
+            return
         
         # Fetch rank information for the new account
         def fetch_rank_worker():
@@ -676,6 +696,11 @@ class LeagueAccountManagerGUI:
 
     def _do_autotype(self, account_id, password):
         _lazy_imports()
+        if pyautogui is None:
+            messagebox.showwarning('Feature Unavailable', 
+                                 'Auto-type feature is not available.\n'
+                                 'PyAutoGUI could not be loaded.')
+            return
         pyautogui.keyDown('alt')
         pyautogui.press('tab')
         pyautogui.keyUp('alt')

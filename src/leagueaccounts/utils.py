@@ -39,6 +39,7 @@ def rank_sort_key(tier, division, lp):
     return (tier_idx, division_idx, -lp_val)
 
 def get_accounts_file():
+    # Always use APPDATA directory
     appdata = os.environ.get('APPDATA') or os.path.expanduser('~')
     folder = os.path.join(appdata, 'LeagueAccounts')
     os.makedirs(folder, exist_ok=True)

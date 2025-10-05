@@ -13,5 +13,5 @@ SolidCompression=yes
 Source: "dist\\leagueaccounts.exe"; DestDir: "{app}"
 
 [Icons]
-Name: "{group}\\League Accounts"; Filename: "{app}\\leagueaccounts.exe"
-Name: "{commondesktop}\\League Accounts"; Filename: "{app}\\leagueaccounts.exe"
+Name: "{group}\\League Accounts"; Filename: "{app}\\leagueaccounts.exe"; IconFilename: "{app}\\leagueaccounts.exe"
+Name: "{commondesktop}\\League Accounts"; Filename: "{app}\\leagueaccounts.exe"; IconFilename: "{app}\\leagueaccounts.exe"

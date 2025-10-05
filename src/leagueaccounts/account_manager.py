@@ -19,7 +19,10 @@ class AccountManager:
                 for acc in loaded_accounts:
                     region = acc.get('region')
                     account_id = acc.get('account_id')
-                    password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}') or ''
+                    try:
+                        password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}') or ''
+                    except Exception:
+                        password = ''
                     acc_obj = Account(
                         account_id=acc.get('account_id', ''),
                         name=acc.get('name', ''),
@@ -38,14 +41,30 @@ class AccountManager:
         self.accounts.sort(key=lambda a: rank_sort_key(a.tier, a.division, a.lp))
 
     def save_accounts(self):
-        to_save = []
-        for acc in self.accounts:
-            acc_dict = acc.__dict__.copy()
-            if 'password' in acc_dict:
-                del acc_dict['password']
-            to_save.append(acc_dict)
-        with open(self.accounts_file, "w", encoding="utf-8") as f:
-            json.dump(to_save, f, indent=2)
+        try:
+            to_save = []
+            for acc in self.accounts:
+                acc_dict = acc.__dict__.copy()
+                if 'password' in acc_dict:
+                    del acc_dict['password']
+                to_save.append(acc_dict)
+            with open(self.accounts_file, "w", encoding="utf-8") as f:
+                json.dump(to_save, f, indent=2)
+        except PermissionError as e:
+            import tkinter.messagebox as mb
+            mb.showerror('Permission Error', 
+                        f'Cannot save accounts file. Permission denied.\n\n'
+                        f'File: {self.accounts_file}\n'
+                        f'Error: {str(e)}\n\n'
+                        f'Please check your user permissions or run as administrator.')
+            raise
+        except Exception as e:
+            import tkinter.messagebox as mb
+            mb.showerror('Save Error', 
+                        f'Failed to save accounts file.\n\n'
+                        f'File: {self.accounts_file}\n'
+                        f'Error: {str(e)}')
+            raise
 
     def add_account(self, account: Account):
         self.accounts.append(account)
