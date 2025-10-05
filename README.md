@@ -12,9 +12,9 @@ Welcome to **LeagueAccounts**, a tool designed to simplify managing multiple **L
 
 ## Installation
 
-To get started, please download the installer from the following Google Drive link:
+Download the latest release from GitHub:
 
-[Installer](https://drive.google.com/file/d/1ggJuSGc26Yh_-JH2eErUAoP9oclHeGoJ/view?usp=sharing)
+[Download Latest Release](https://github.com/yourusername/LeagueAccounts/releases/latest)
 
 ## Usage
 
