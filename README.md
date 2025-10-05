@@ -26,9 +26,6 @@ To get started, please download the installer from the following Google Drive li
 
 ## Building from Source
 
-To build LeagueAccounts from source, see the [BUILD.md](docs/BUILD.md) documentation for detailed instructions.
-
-Quick build:
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -37,18 +34,7 @@ pip install -r requirements.txt
 python scripts/build_all.py
 ```
 
-## Project Structure
-
-```
-LeagueAccounts/
-├── src/leagueaccounts/       # Main source code
-├── assets/                   # Icons and images
-├── config/                   # Build configuration files
-├── scripts/                  # Build and utility scripts
-├── data/                     # Runtime data files
-├── docs/                     # Documentation
-└── requirements.txt          # Python dependencies
-```
+For detailed build instructions, see [BUILD.md](docs/BUILD.md).
 
 ## Contributing
 

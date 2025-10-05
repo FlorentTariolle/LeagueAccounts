@@ -1,6 +1,6 @@
 # Building LeagueAccounts
 
-This document explains how to build the LeagueAccounts executable and installer.
+How to build the executable and installer from source.
 
 ## Prerequisites
 
@@ -128,7 +128,7 @@ After building:
 
 ## Development
 
-For development builds:
-- Use `python -m src.leagueaccounts.main` to run directly
+For development:
+- Use `python run_dev.py` to run directly
 - Modify `config/leagueaccounts.spec` for PyInstaller options
 - Edit `config/installer.iss` for installer settings
