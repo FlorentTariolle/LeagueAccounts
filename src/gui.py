@@ -1,18 +1,23 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import tkinter.font as tkfont
-import pyperclip
-import keyring
-import pyautogui
-import time
-from PIL import Image, ImageTk
-import io
+import threading
+
+# Lazy imports for heavy dependencies
+def _lazy_imports():
+    global pyperclip, keyring, pyautogui, time, Image, ImageTk, io, requests
+    import pyperclip
+    import keyring
+    import pyautogui
+    import time
+    from PIL import Image, ImageTk
+    import io
+    import requests
+
 from account_manager import AccountManager
 from rank_fetcher import RankFetcher
 from utils import REGION_DISPLAY_NAMES, TIER_ORDER
 from models import Account
-import requests
-import threading
 
 PNG_URL = "https://support-leagueoflegends.riotgames.com/hc/article_attachments/18710658817299"
 
@@ -34,6 +39,11 @@ class LeagueAccountManagerGUI:
         self._copy_counter = 0
         self._last_selected_item = None
         self.setup_gui()
+        # Defer account loading to after GUI is ready
+        self.root.after(100, self._delayed_init)
+
+    def _delayed_init(self):
+        """Initialize heavy operations after GUI is ready"""
         self.manager.load_accounts()
         self.display_accounts(self.manager.accounts)
 
@@ -303,6 +313,7 @@ class LeagueAccountManagerGUI:
         self.display_accounts(filtered)
 
     def copy_selected_account_id(self):
+        _lazy_imports()
         selected = self.tree.selection()
         if not selected:
             return
@@ -314,6 +325,7 @@ class LeagueAccountManagerGUI:
         pyperclip.copy(account_id)
 
     def copy_selected_password(self):
+        _lazy_imports()
         selected = self.tree.selection()
         if not selected:
             return
@@ -497,6 +509,7 @@ class LeagueAccountManagerGUI:
 
     def show_ranks_image(self):
         try:
+            _lazy_imports()
             response = requests.get(PNG_URL)
             response.raise_for_status()
             img = Image.open(io.BytesIO(response.content))
@@ -531,6 +544,7 @@ class LeagueAccountManagerGUI:
             messagebox.showerror('Error', f'Could not open ranks image: {e}')
 
     def on_tree_ctrl_c(self, event=None):
+        _lazy_imports()
         selected = self.tree.selection()
         if not selected:
             return
@@ -555,6 +569,7 @@ class LeagueAccountManagerGUI:
         self._copy_counter += 1
 
     def on_tree_ctrl_shift_v(self, event=None):
+        _lazy_imports()
         selected = self.tree.selection()
         if not selected:
             return
@@ -570,6 +585,7 @@ class LeagueAccountManagerGUI:
         self.root.after(100, lambda: self._do_autotype(account_id, password))
 
     def _do_autotype(self, account_id, password):
+        _lazy_imports()
         pyautogui.keyDown('alt')
         pyautogui.press('tab')
         pyautogui.keyUp('alt')

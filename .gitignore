@@ -1,3 +1,22 @@
+# Build artifacts
 build/
-*.pyc
 dist/
+*.pyc
+__pycache__/
+
+# PyInstaller
+*.spec.bak
+*.log
+
+# Inno Setup
+src/output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
