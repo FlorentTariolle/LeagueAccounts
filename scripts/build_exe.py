@@ -16,7 +16,6 @@ def clean_build_directories():
     
     # Directories to clean
     dirs_to_clean = ['build', 'dist', '__pycache__']
-    files_to_clean = ['*.pyc']
     
     # Clean directories
     for dir_name in dirs_to_clean:
@@ -24,8 +23,8 @@ def clean_build_directories():
             shutil.rmtree(dir_name)
             print(f"   Removed {dir_name}/")
     
-    # Clean Python cache files
-    for root, dirs, files in os.walk('.'):
+    # Clean Python cache files in src directory
+    for root, dirs, files in os.walk('src'):
         for dir_name in dirs[:]:  # Copy list to avoid modification during iteration
             if dir_name == '__pycache__':
                 shutil.rmtree(os.path.join(root, dir_name))
@@ -73,13 +72,13 @@ def build_executable():
     """Build the executable using PyInstaller"""
     print("🔨 Building executable...")
     
-    # Change to src directory
-    src_dir = Path("src")
-    if not src_dir.exists():
-        print("❌ src/ directory not found!")
+    # Change to config directory
+    config_dir = Path("config")
+    if not config_dir.exists():
+        print("❌ config/ directory not found!")
         return False
     
-    os.chdir(src_dir)
+    os.chdir(config_dir)
     
     try:
         # Run PyInstaller with the spec file
@@ -117,7 +116,7 @@ def verify_build():
     """Verify the build was successful"""
     print("🔍 Verifying build...")
     
-    exe_path = Path("dist/leagueaccounts.exe")
+    exe_path = Path("build/dist/leagueaccounts.exe")
     if exe_path.exists():
         size_mb = exe_path.stat().st_size / (1024 * 1024)
         print(f"✅ Executable created: {exe_path} ({size_mb:.1f} MB)")
@@ -132,13 +131,14 @@ def main():
     print("=" * 40)
     
     # Check if we're in the right directory
-    if not os.path.exists("src") or not os.path.exists("src/leagueaccounts.spec"):
+    if not os.path.exists("config") or not os.path.exists("config/leagueaccounts.spec"):
         print("❌ Please run this script from the LeagueAccounts root directory!")
         print("   Expected structure:")
         print("   LeagueAccounts/")
-        print("   ├── src/")
+        print("   ├── config/")
         print("   │   └── leagueaccounts.spec")
-        print("   └── build_exe.py")
+        print("   └── scripts/")
+        print("       └── build_exe.py")
         sys.exit(1)
     
     # Step 1: Clean previous builds
@@ -157,10 +157,10 @@ def main():
         sys.exit(1)
     
     print("\n🎉 Build completed successfully!")
-    print(f"📁 Executable location: {Path('dist/leagueaccounts.exe').absolute()}")
+    print(f"📁 Executable location: {Path('build/dist/leagueaccounts.exe').absolute()}")
     print("\nNext steps:")
     print("1. Test the executable")
-    print("2. Run create_installer.py to create the installer")
+    print("2. Run scripts/create_installer.py to create the installer")
 
 if __name__ == "__main__":
     main()

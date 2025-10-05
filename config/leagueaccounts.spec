@@ -1,12 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-# When building, use: pyinstaller --distpath ../dist leagueaccounts.spec
+# When building, use: pyinstaller --distpath ../../build/dist leagueaccounts.spec
 
 a = Analysis(
-    ['main.py'],
-    pathex=[],
+    ['../src/leagueaccounts/main.py'],
+    pathex=['../src'],
     binaries=[],
-    datas=[],
+    datas=[
+        ('../assets/icons/icon.ico', 'assets/icons'),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -36,5 +38,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['icon.ico'],
+    icon=['../assets/icons/icon.ico'],
 )

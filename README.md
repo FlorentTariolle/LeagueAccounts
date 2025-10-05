@@ -24,6 +24,32 @@ To get started, please download the installer from the following Google Drive li
 4. Press `CTRL+SHIFT+V` to auto-fill credentials in the Riot Client.
 5. View your account ranks automatically fetched by the tool.
 
+## Building from Source
+
+To build LeagueAccounts from source, see the [BUILD.md](docs/BUILD.md) documentation for detailed instructions.
+
+Quick build:
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Build executable and installer
+python scripts/build_all.py
+```
+
+## Project Structure
+
+```
+LeagueAccounts/
+├── src/leagueaccounts/       # Main source code
+├── assets/                   # Icons and images
+├── config/                   # Build configuration files
+├── scripts/                  # Build and utility scripts
+├── data/                     # Runtime data files
+├── docs/                     # Documentation
+└── requirements.txt          # Python dependencies
+```
+
 ## Contributing
 
 We welcome contributions to make LeagueAccounts even better! To contribute:

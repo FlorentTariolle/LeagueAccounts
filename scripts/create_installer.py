@@ -39,21 +39,21 @@ def check_executable():
     """Check if the executable exists"""
     print("🔍 Checking for executable...")
     
-    exe_path = Path("dist/leagueaccounts.exe")
+    exe_path = Path("build/dist/leagueaccounts.exe")
     if exe_path.exists():
         size_mb = exe_path.stat().st_size / (1024 * 1024)
         print(f"✅ Found executable: {exe_path} ({size_mb:.1f} MB)")
         return True
     else:
         print("❌ Executable not found!")
-        print("Please run build_exe.py first to create the executable.")
+        print("Please run scripts/build_exe.py first to create the executable.")
         return False
 
 def update_installer_version():
     """Update the installer version from version info or increment it"""
     print("📝 Updating installer version...")
     
-    iss_file = Path("src/leagueaccounts_installer.iss")
+    iss_file = Path("config/installer.iss")
     if not iss_file.exists():
         print("❌ Installer script not found!")
         return False
@@ -103,7 +103,7 @@ def create_installer():
     update_installer_version()
     
     # Path to the installer script
-    iss_file = Path("src/leagueaccounts_installer.iss").absolute()
+    iss_file = Path("config/installer.iss").absolute()
     
     try:
         # Run Inno Setup compiler
@@ -134,8 +134,8 @@ def verify_installer():
     """Verify the installer was created successfully"""
     print("🔍 Verifying installer...")
     
-    # Look for installer files in dist directory
-    dist_dir = Path("dist")
+    # Look for installer files in build/dist directory
+    dist_dir = Path("build/dist")
     installer_files = list(dist_dir.glob("LeagueAccountsSetup*.exe"))
     
     if installer_files:
@@ -148,7 +148,7 @@ def verify_installer():
         return True
     else:
         print("❌ Installer not found!")
-        print("Expected file pattern: LeagueAccountsSetup*.exe in dist/ directory")
+        print("Expected file pattern: LeagueAccountsSetup*.exe in build/dist/ directory")
         return False
 
 def cleanup_temp_files():
@@ -157,8 +157,8 @@ def cleanup_temp_files():
     
     # Remove any temporary files that might have been created
     temp_patterns = [
-        "src/output",
-        "src/__pycache__",
+        "config/output",
+        "config/__pycache__",
         "*.tmp"
     ]
     
@@ -186,7 +186,7 @@ def show_build_info():
     print("-" * 30)
     
     # Get installer info
-    dist_dir = Path("dist")
+    dist_dir = Path("build/dist")
     installer_files = list(dist_dir.glob("LeagueAccountsSetup*.exe"))
     exe_files = list(dist_dir.glob("leagueaccounts.exe"))
     
@@ -212,16 +212,16 @@ def main():
     print("=" * 50)
     
     # Check if we're in the right directory
-    if not os.path.exists("src") or not os.path.exists("src/leagueaccounts_installer.iss"):
+    if not os.path.exists("config") or not os.path.exists("config/installer.iss"):
         print("❌ Please run this script from the LeagueAccounts root directory!")
         print("   Expected structure:")
         print("   LeagueAccounts/")
-        print("   ├── src/")
-        print("   │   ├── leagueaccounts.exe")
-        print("   │   └── leagueaccounts_installer.iss")
-        print("   ├── dist/")
+        print("   ├── config/")
+        print("   │   └── installer.iss")
+        print("   ├── build/dist/")
         print("   │   └── leagueaccounts.exe")
-        print("   └── create_installer.py")
+        print("   └── scripts/")
+        print("       └── create_installer.py")
         sys.exit(1)
     
     # Step 1: Create installer

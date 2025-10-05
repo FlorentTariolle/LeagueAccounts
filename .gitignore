@@ -9,7 +9,7 @@ __pycache__/
 *.log
 
 # Inno Setup
-src/output/
+config/output/
 
 # IDE
 .vscode/
@@ -20,3 +20,6 @@ src/output/
 # OS
 .DS_Store
 Thumbs.db
+
+# User data (if sensitive)
+data/league_accounts.json

@@ -1,8 +1,8 @@
 import keyring
 import json
 import os
-from utils import get_accounts_file, rank_sort_key
-from models import Account
+from .utils import get_accounts_file, rank_sort_key
+from .models import Account
 
 class AccountManager:
     def __init__(self, root, rank_fetcher):

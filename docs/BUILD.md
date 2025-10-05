@@ -25,14 +25,14 @@ pip install pyinstaller pillow requests beautifulsoup4 pyautogui keyring pypercl
 ### Option 1: Complete Build (Recommended)
 Build both executable and installer in one go:
 ```bash
-python build_all.py
+python scripts/build_all.py
 ```
 
 ### Option 2: Step-by-Step Build
 
 #### Step 1: Build Executable
 ```bash
-python build_exe.py
+python scripts/build_exe.py
 ```
 
 This will:
@@ -43,7 +43,7 @@ This will:
 
 #### Step 2: Create Installer
 ```bash
-python create_installer.py
+python scripts/create_installer.py
 ```
 
 This will:
@@ -58,24 +58,24 @@ This will:
 After successful build, you'll find:
 
 ### Executable
-- `dist/leagueaccounts.exe` - The main application
+- `build/dist/leagueaccounts.exe` - The main application
 
 ### Installer
-- `dist/LeagueAccountsSetup.exe` - Windows installer package
+- `build/dist/LeagueAccountsSetup.exe` - Windows installer package
 
 ## Build Scripts
 
-### `build_exe.py`
+### `scripts/build_exe.py`
 - Builds the executable using PyInstaller
-- Uses optimized settings from `leagueaccounts.spec`
+- Uses optimized settings from `config/leagueaccounts.spec`
 - Includes dependency checking and cleanup
 
-### `create_installer.py`
+### `scripts/create_installer.py`
 - Creates Windows installer using Inno Setup
 - Automatically increments version number
 - Handles error checking and verification
 
-### `build_all.py`
+### `scripts/build_all.py`
 - Runs both build scripts in sequence
 - Provides complete build process
 - Shows final output summary
@@ -95,9 +95,9 @@ After successful build, you'll find:
 - Check that all packages installed correctly
 
 #### "Executable not found"
-- Run `build_exe.py` first before creating installer
+- Run `scripts/build_exe.py` first before creating installer
 - Check that the build completed successfully
-- Verify `dist/leagueaccounts.exe` exists
+- Verify `build/dist/leagueaccounts.exe` exists
 
 #### Build fails with PyInstaller errors
 - Clean build directories: Delete `build/` and `dist/` folders
@@ -114,7 +114,7 @@ The build scripts include several optimizations:
 
 ## Version Management
 
-The installer version is automatically incremented each time you run `create_installer.py`. The version is stored in `src/leagueaccounts_installer.iss`.
+The installer version is automatically incremented each time you run `scripts/create_installer.py`. The version is stored in `config/installer.iss`.
 
 To manually set a version, edit the `AppVersion` line in the `.iss` file.
 
@@ -129,6 +129,6 @@ After building:
 ## Development
 
 For development builds:
-- Use `python src/main.py` to run directly
-- Modify `src/leagueaccounts.spec` for PyInstaller options
-- Edit `src/leagueaccounts_installer.iss` for installer settings
+- Use `python -m src.leagueaccounts.main` to run directly
+- Modify `config/leagueaccounts.spec` for PyInstaller options
+- Edit `config/installer.iss` for installer settings

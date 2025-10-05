@@ -14,10 +14,10 @@ def _lazy_imports():
     import io
     import requests
 
-from account_manager import AccountManager
-from rank_fetcher import RankFetcher
-from utils import REGION_DISPLAY_NAMES, TIER_ORDER
-from models import Account
+from .account_manager import AccountManager
+from .rank_fetcher import RankFetcher
+from .utils import REGION_DISPLAY_NAMES, TIER_ORDER
+from .models import Account
 
 PNG_URL = "https://support-leagueoflegends.riotgames.com/hc/article_attachments/18710658817299"
 
@@ -185,7 +185,7 @@ class LeagueAccountManagerGUI:
         if not account_id or not name or not region_display or not password:
             messagebox.showerror('Input Error', 'Please fill in all fields.')
             return
-        from utils import REGION_MAP
+        from .utils import REGION_MAP
         region = REGION_MAP.get(region_display)
         if not region:
             messagebox.showerror('Input Error', 'Invalid region selected.')
@@ -213,7 +213,7 @@ class LeagueAccountManagerGUI:
     def multi_add_accounts(self):
         def worker():
             region_display = self.region_var.get().strip()
-            from utils import REGION_MAP
+            from .utils import REGION_MAP
             region = REGION_MAP.get(region_display)
             while True:
                 lines = self.multiadd_text.get('1.0', tk.END).strip().splitlines()
@@ -335,7 +335,7 @@ class LeagueAccountManagerGUI:
             return
         account_id = values[0]
         region_display = values[2]
-        from utils import REGION_MAP
+        from .utils import REGION_MAP
         region = REGION_MAP.get(region_display, region_display)
         password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}')
         if password:
@@ -388,7 +388,7 @@ class LeagueAccountManagerGUI:
             return
         account_id = values[0]
         region_display = values[2]
-        from utils import REGION_MAP
+        from .utils import REGION_MAP
         region = REGION_MAP.get(region_display, region_display)
         # Find the next item to select
         all_items = self.tree.get_children()
@@ -449,7 +449,7 @@ class LeagueAccountManagerGUI:
         self.display_accounts(filtered)
 
     def can_play_with(self, acc, friend_tier, friend_division):
-        from utils import TIER_ORDER
+        from .utils import TIER_ORDER
         def division_to_int(division):
             roman_map = {'I': 1, 'II': 2, 'III': 3, 'IV': 4}
             if isinstance(division, str):
@@ -561,7 +561,7 @@ class LeagueAccountManagerGUI:
         else:
             account_id = values[0]
             region_display = values[2]
-            from utils import REGION_MAP
+            from .utils import REGION_MAP
             region = REGION_MAP.get(region_display, region_display)
             password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}')
             if password:
@@ -579,7 +579,7 @@ class LeagueAccountManagerGUI:
             return
         account_id = values[0]
         region_display = values[2]
-        from utils import REGION_MAP
+        from .utils import REGION_MAP
         region = REGION_MAP.get(region_display, region_display)
         password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}')
         self.root.after(100, lambda: self._do_autotype(account_id, password))

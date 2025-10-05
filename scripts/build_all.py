@@ -35,17 +35,17 @@ def main():
     print("=" * 60)
     
     # Check if we're in the right directory
-    if not os.path.exists("src"):
+    if not os.path.exists("scripts") or not os.path.exists("config"):
         print("❌ Please run this script from the LeagueAccounts root directory!")
         sys.exit(1)
     
     # Step 1: Build executable
-    if not run_script("build_exe.py"):
+    if not run_script("scripts/build_exe.py"):
         print("\n❌ Build process failed at executable creation step!")
         sys.exit(1)
     
     # Step 2: Create installer
-    if not run_script("create_installer.py"):
+    if not run_script("scripts/create_installer.py"):
         print("\n❌ Build process failed at installer creation step!")
         sys.exit(1)
     
@@ -53,7 +53,7 @@ def main():
     print("\n📁 Output files:")
     
     # List output files
-    dist_dir = Path("dist")
+    dist_dir = Path("build/dist")
     if dist_dir.exists():
         for file_path in dist_dir.iterdir():
             if file_path.is_file():
