@@ -1,16 +1,16 @@
 [Setup]
 AppName=League Accounts
-AppVersion=1.1
+AppVersion=1.3
 DefaultDirName={autopf}\LeagueAccounts
 DefaultGroupName=League Accounts
-OutputDir=../../build/dist
+OutputDir=./dist
 OutputBaseFilename=LeagueAccountsSetup
 SetupIconFile=../assets/icons/icon.ico
 Compression=lzma2/max
 SolidCompression=yes
 
 [Files]
-Source: "..\\..\\build\\dist\\leagueaccounts.exe"; DestDir: "{app}"
+Source: "dist\\leagueaccounts.exe"; DestDir: "{app}"
 
 [Icons]
 Name: "{group}\\League Accounts"; Filename: "{app}\\leagueaccounts.exe"

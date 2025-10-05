@@ -12,7 +12,7 @@ from pathlib import Path
 
 def clean_build_directories():
     """Clean previous build artifacts"""
-    print("🧹 Cleaning previous build artifacts...")
+    print("Cleaning previous build artifacts...")
     
     # Directories to clean
     dirs_to_clean = ['build', 'dist', '__pycache__']
@@ -32,7 +32,7 @@ def clean_build_directories():
 
 def check_dependencies():
     """Check if required dependencies are installed"""
-    print("📦 Checking dependencies...")
+    print("Checking dependencies...")
     
     required_packages = [
         'pyinstaller',
@@ -53,29 +53,36 @@ def check_dependencies():
                 import bs4
             elif package == 'pillow':
                 import PIL
+            elif package == 'pyinstaller':
+                # PyInstaller is a command-line tool, check if it's available
+                try:
+                    subprocess.run([sys.executable, "-m", "PyInstaller", "--version"], 
+                                 capture_output=True, check=True)
+                except (subprocess.CalledProcessError, FileNotFoundError):
+                    raise ImportError("PyInstaller not found")
             else:
                 __import__(package)
-            print(f"   ✓ {package}")
+            print(f"   OK {package}")
         except ImportError:
             missing_packages.append(package)
-            print(f"   ✗ {package} (missing)")
+            print(f"   MISSING {package}")
     
     if missing_packages:
-        print(f"\n❌ Missing packages: {', '.join(missing_packages)}")
+        print(f"\nERROR: Missing packages: {', '.join(missing_packages)}")
         print("Install them with: pip install " + " ".join(missing_packages))
         return False
     
-    print("✅ All dependencies are installed!")
+    print("SUCCESS: All dependencies are installed!")
     return True
 
 def build_executable():
     """Build the executable using PyInstaller"""
-    print("🔨 Building executable...")
+    print("Building executable...")
     
     # Change to config directory
     config_dir = Path("config")
     if not config_dir.exists():
-        print("❌ config/ directory not found!")
+        print("ERROR: config/ directory not found!")
         return False
     
     os.chdir(config_dir)
@@ -92,11 +99,11 @@ def build_executable():
         print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         
-        print("✅ Executable built successfully!")
+        print("SUCCESS: Executable built successfully!")
         return True
         
     except subprocess.CalledProcessError as e:
-        print(f"❌ Build failed!")
+        print(f"ERROR: Build failed!")
         print(f"Error: {e}")
         if e.stdout:
             print(f"Output: {e.stdout}")
@@ -105,7 +112,7 @@ def build_executable():
         return False
     
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print(f"ERROR: Unexpected error: {e}")
         return False
     
     finally:
@@ -114,25 +121,25 @@ def build_executable():
 
 def verify_build():
     """Verify the build was successful"""
-    print("🔍 Verifying build...")
+    print("Verifying build...")
     
-    exe_path = Path("build/dist/leagueaccounts.exe")
+    exe_path = Path("config/dist/leagueaccounts.exe")
     if exe_path.exists():
         size_mb = exe_path.stat().st_size / (1024 * 1024)
-        print(f"✅ Executable created: {exe_path} ({size_mb:.1f} MB)")
+        print(f"SUCCESS: Executable created: {exe_path} ({size_mb:.1f} MB)")
         return True
     else:
-        print("❌ Executable not found!")
+        print("ERROR: Executable not found!")
         return False
 
 def main():
     """Main build process"""
-    print("🚀 LeagueAccounts Build Script")
+    print("LeagueAccounts Build Script")
     print("=" * 40)
     
     # Check if we're in the right directory
     if not os.path.exists("config") or not os.path.exists("config/leagueaccounts.spec"):
-        print("❌ Please run this script from the LeagueAccounts root directory!")
+        print("ERROR: Please run this script from the LeagueAccounts root directory!")
         print("   Expected structure:")
         print("   LeagueAccounts/")
         print("   ├── config/")
@@ -156,8 +163,8 @@ def main():
     if not verify_build():
         sys.exit(1)
     
-    print("\n🎉 Build completed successfully!")
-    print(f"📁 Executable location: {Path('build/dist/leagueaccounts.exe').absolute()}")
+    print("\nSUCCESS: Build completed successfully!")
+    print(f"Executable location: {Path('config/dist/leagueaccounts.exe').absolute()}")
     print("\nNext steps:")
     print("1. Test the executable")
     print("2. Run scripts/create_installer.py to create the installer")
