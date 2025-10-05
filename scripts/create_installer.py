@@ -50,8 +50,8 @@ def check_executable():
         return False
 
 def update_installer_version():
-    """Update the installer version from version info or increment it"""
-    print("Updating installer version...")
+    """Check the installer version (no longer auto-increments)"""
+    print("Checking installer version...")
     
     iss_file = Path("config/installer.iss")
     if not iss_file.exists():
@@ -64,23 +64,10 @@ def update_installer_version():
     
     # Extract current version
     import re
-    version_match = re.search(r'AppVersion=(\d+\.\d+)', content)
+    version_match = re.search(r'AppVersion=([\d\.]+)', content)
     if version_match:
         current_version = version_match.group(1)
         print(f"   Current version: {current_version}")
-        
-        # Increment patch version
-        major, minor = current_version.split('.')
-        new_version = f"{major}.{int(minor) + 1}"
-        
-        # Update version in content
-        content = re.sub(r'AppVersion=\d+\.\d+', f'AppVersion={new_version}', content)
-        
-        # Write back to file
-        with open(iss_file, 'w', encoding='utf-8') as f:
-            f.write(content)
-        
-        print(f"   Updated version: {new_version}")
     else:
         print("   Could not determine current version")
     
@@ -99,7 +86,7 @@ def create_installer():
     if not check_executable():
         return False
     
-    # Update version
+    # Check version
     update_installer_version()
     
     # Path to the installer script
