@@ -14,7 +14,7 @@ Welcome to **LeagueAccounts**, a tool designed to simplify managing multiple **L
 
 Download the latest release from GitHub:
 
-[Download Latest Release](https://github.com/yourusername/LeagueAccounts/releases/latest)
+[Download Latest Release](https://github.com/FlorentTariolle/LeagueAccounts/releases/latest)
 
 ## Usage
 
