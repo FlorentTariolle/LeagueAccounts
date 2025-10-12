@@ -7,7 +7,7 @@ Welcome to **LeagueAccounts**, a tool designed to simplify managing multiple **L
 - **Quick Account Switching**: Easily switch between multiple League of Legends accounts without the hassle of logging in and out repeatedly.
 - **Secure Password Storage**: Safely store your account credentials using Windows' native password storage system.
 - **Auto Credential Entry**: Use `CTRL+SHIFT+V` to automatically input your login credentials into the Riot Client.
-- **Automatic Rank Fetching**: Retrieve and display your account ranks effortlessly, keeping you updated on your progress.
+- **Automatic Rank and Level Fetching**: Retrieve and display your account ranks and levels effortlessly, keeping you updated on your progress.
 - **User-Friendly Interface**: Intuitive design for managing accounts with minimal effort.
 
 ## Installation
