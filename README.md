@@ -50,4 +50,4 @@ Please ensure your code follows the project's coding standards and includes appr
 
 ---
 
-**Powered by [LeagueUnlocked](https://github.com/AlbanCliquet/LeagueUnlocked)**
+**Powered by [LeagueUnlocked](https://github.com/Alban1911/LeagueUnlocked)**
