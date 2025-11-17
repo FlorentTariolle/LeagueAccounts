@@ -47,7 +47,3 @@ We welcome contributions to make LeagueAccounts even better! To contribute:
 5. Open a pull request.
 
 Please ensure your code follows the project's coding standards and includes appropriate documentation.
-
----
-
-**Powered by [LeagueUnlocked](https://github.com/Alban1911/LeagueUnlocked)**
