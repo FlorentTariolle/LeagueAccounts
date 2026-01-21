@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import bs4
+import html
 
 class RankFetcher:
     def fetch_rank(self, account):
@@ -84,20 +85,28 @@ class RankFetcher:
                             tier = match.group(1)
                             division = ''
 
-            reached_last_season = '...'
-            finished_last_season = '...'
+            reached_last_season = 'Unranked'
+            finished_last_season = 'Unranked'
             tooltip_divs = soup.find_all('div', attrs={'tooltip': True})
-            matching_tooltips = []
+            s2025_tooltip = None
+            
+            # Look specifically for Season 2025 tooltip
             for div in tooltip_divs:
-                tooltip_content = div.get('tooltip', '')
-                if 'This player reached' in tooltip_content:
-                    matching_tooltips.append(tooltip_content)
-            if matching_tooltips:
-                latest_tooltip = matching_tooltips[-1]
-                reached_match = re.search(r'This player reached ([A-Za-z]+(?:\s+[IV]+)?) during Season \d+ \(Split \d+\). At the end of the season, this player was ([A-Za-z]+(?:\s+[IV]+)?)', latest_tooltip)
+                tooltip_content = html.unescape(div.get('tooltip', ''))
+                if 'This player reached' in tooltip_content and 'Ranked Solo/Duo' in tooltip_content:
+                    # Check if it's Season 2025
+                    if re.search(r'during Season 2025', tooltip_content):
+                        s2025_tooltip = tooltip_content
+                        break
+            
+            if s2025_tooltip:
+                # Extract rank data from S2025 tooltip
+                # Pattern for Season 2025 (without split): "during Season 2025."
+                reached_match = re.search(r'This player reached ([A-Za-z]+(?:\s+\d+LP)?(?:\s+[IV]+)?) during Season 2025\. At the end of the season, this player was ([A-Za-z]+(?:\s+\d+LP)?(?:\s+[IV]+)?)\.', s2025_tooltip)
+                
                 if reached_match:
-                    reached_last_season = reached_match.group(1)
-                    finished_last_season = reached_match.group(2)
+                    reached_last_season = reached_match.group(1).strip()
+                    finished_last_season = reached_match.group(2).strip()
             return {
                 'tier': tier,
                 'division': division,
