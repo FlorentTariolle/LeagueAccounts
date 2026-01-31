@@ -1,6 +1,6 @@
 [Setup]
 AppName=League Accounts
-AppVersion=1.1.1
+AppVersion=1.2.0
 DefaultDirName={autopf}\LeagueAccounts
 DefaultGroupName=League Accounts
 OutputDir=./dist

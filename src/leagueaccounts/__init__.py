@@ -8,7 +8,7 @@ A tool for managing multiple League of Legends accounts with features like:
 - Auto credential entry
 """
 
-__version__ = "1.1"
+__version__ = "1.2.0"
 __author__ = "LeagueAccounts Team"
 __description__ = "League of Legends Account Manager"
 

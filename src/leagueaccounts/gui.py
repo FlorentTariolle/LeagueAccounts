@@ -22,14 +22,27 @@ def _lazy_imports():
     from PIL import Image, ImageTk
 
 from pathlib import Path
+import sys
 
 from .account_manager import AccountManager, KEYRING_SERVICE
 from .rank_fetcher import RankFetcher
 from .utils import REGION_DISPLAY_NAMES, TIER_ORDER, REGION_MAP
 from .models import Account
 
-# Path to local ranks compatibilities image
-RANKS_IMAGE_PATH = Path(__file__).parent.parent.parent / "assets" / "ranks_compatibilities.webp"
+# Handle PyInstaller bundled paths
+def get_asset_path(relative_path):
+    """Get path to asset, works for dev and PyInstaller bundle"""
+    if getattr(sys, 'frozen', False):
+        # Running as bundled exe
+        base_path = Path(sys._MEIPASS)
+    else:
+        # Running in development
+        base_path = Path(__file__).parent.parent.parent
+    return base_path / relative_path
+
+# Path to local assets
+RANKS_IMAGE_PATH = get_asset_path("assets/ranks_compatibilities.webp")
+WINDOW_ICON_PATH = get_asset_path("assets/icons/blue_icon.ico")
 
 # Dark theme colors
 COLORS = {
@@ -48,6 +61,9 @@ class LeagueAccountApp:
     def __init__(self):
         self.root = ctk.CTk()
         self.root.title('League Accounts')
+        # Set window icon
+        if WINDOW_ICON_PATH.exists():
+            self.root.iconbitmap(str(WINDOW_ICON_PATH))
         self.manager = AccountManager(self.root, RankFetcher())
         self.gui = LeagueAccountManagerGUI(self.root, self.manager)
         # Maximize after GUI is set up

@@ -8,6 +8,8 @@ a = Analysis(
     binaries=[],
     datas=[
         ('../assets/icons/icon.ico', 'assets/icons'),
+        ('../assets/icons/blue_icon.ico', 'assets/icons'),
+        ('../assets/ranks_compatibilities.webp', 'assets'),
     ],
     hiddenimports=[
         'keyring',
@@ -34,8 +36,9 @@ a = Analysis(
         'json',
         'os',
         'sys',
-        'io',
-        'time'
+        'time',
+        'customtkinter',
+        'darkdetect',
     ],
     hookspath=[],
     hooksconfig={},
