@@ -6,8 +6,4 @@ beautifulsoup4>=4.11.0
 pyautogui>=0.9.54
 keyring>=23.0.0
 pyperclip>=1.8.0
-
-# Development dependencies (optional)
-# pytest>=7.0.0
-# black>=22.0.0
-# flake8>=5.0.0
+customtkinter>=5.2.0

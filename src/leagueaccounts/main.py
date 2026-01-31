@@ -17,7 +17,12 @@ def main():
                 windll.user32.SetProcessDPIAware()
             except Exception:
                 pass  # If neither works, proceed without DPI awareness
-    
+
+    # Set CustomTkinter appearance before creating any windows
+    import customtkinter as ctk
+    ctk.set_appearance_mode("dark")
+    ctk.set_default_color_theme("blue")
+
     from leagueaccounts.gui import LeagueAccountApp
     LeagueAccountApp().run()
 
