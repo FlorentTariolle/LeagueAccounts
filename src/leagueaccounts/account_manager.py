@@ -4,6 +4,8 @@ import os
 from .utils import get_accounts_file, rank_sort_key
 from .models import Account
 
+KEYRING_SERVICE = 'LeagueAccounts'
+
 class AccountManager:
     def __init__(self, root, rank_fetcher):
         self.root = root
@@ -20,7 +22,7 @@ class AccountManager:
                     region = acc.get('region')
                     account_id = acc.get('account_id')
                     try:
-                        password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}') or ''
+                        password = keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}') or ''
                     except Exception:
                         password = ''
                     acc_obj = Account(
@@ -74,7 +76,7 @@ class AccountManager:
     def delete_account(self, account_id, region):
         self.accounts = [acc for acc in self.accounts if not (acc.account_id == account_id and acc.region == region)]
         try:
-            keyring.delete_password('LeagueAccounts', f'{region}:{account_id}')
+            keyring.delete_password(KEYRING_SERVICE, f'{region}:{account_id}')
         except Exception:
             pass
         self.save_accounts()

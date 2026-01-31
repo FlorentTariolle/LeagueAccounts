@@ -10,7 +10,7 @@ ctk.set_default_color_theme("blue")
 
 # Lazy imports for heavy dependencies
 def _lazy_imports():
-    global pyperclip, keyring, pyautogui, time, Image, ImageTk, io, requests
+    global pyperclip, keyring, pyautogui, time, Image, ImageTk
     import pyperclip
     import keyring
     try:
@@ -20,14 +20,12 @@ def _lazy_imports():
         pyautogui = None
     import time
     from PIL import Image, ImageTk
-    import io
-    import requests
 
 from pathlib import Path
 
-from .account_manager import AccountManager
+from .account_manager import AccountManager, KEYRING_SERVICE
 from .rank_fetcher import RankFetcher
-from .utils import REGION_DISPLAY_NAMES, TIER_ORDER
+from .utils import REGION_DISPLAY_NAMES, TIER_ORDER, REGION_MAP
 from .models import Account
 
 # Path to local ranks compatibilities image
@@ -52,6 +50,8 @@ class LeagueAccountApp:
         self.root.title('League Accounts')
         self.manager = AccountManager(self.root, RankFetcher())
         self.gui = LeagueAccountManagerGUI(self.root, self.manager)
+        # Maximize after GUI is set up
+        self.root.after(50, lambda: self.root.state('zoomed'))
 
     def run(self):
         self.root.mainloop()
@@ -324,7 +324,6 @@ class LeagueAccountManagerGUI:
         if not account_id or not name or not region_display or not password:
             messagebox.showerror('Input Error', 'Please fill in all fields.')
             return
-        from .utils import REGION_MAP
         region = REGION_MAP.get(region_display)
         if not region:
             messagebox.showerror('Input Error', 'Invalid region selected.')
@@ -336,7 +335,7 @@ class LeagueAccountManagerGUI:
 
         try:
             _lazy_imports()
-            keyring.set_password('LeagueAccounts', f'{region}:{account_id}', password)
+            keyring.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
 
             new_acc = Account(
                 account_id=account_id,
@@ -387,7 +386,6 @@ class LeagueAccountManagerGUI:
         def worker():
             _lazy_imports()
             region_display = self.region_var.get().strip()
-            from .utils import REGION_MAP
             region = REGION_MAP.get(region_display)
 
             # Get the text content, filtering out placeholder text
@@ -448,7 +446,7 @@ class LeagueAccountManagerGUI:
                     continue
 
                 try:
-                    keyring.set_password('LeagueAccounts', f'{region}:{account_id}', password)
+                    keyring.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
                     new_acc = Account(
                         account_id=account_id,
                         name=name,
@@ -577,9 +575,8 @@ class LeagueAccountManagerGUI:
             return
         account_id = values[0]
         region_display = values[2]
-        from .utils import REGION_MAP
         region = REGION_MAP.get(region_display, region_display)
-        password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}')
+        password = keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}')
         if password:
             pyperclip.copy(password)
 
@@ -630,7 +627,6 @@ class LeagueAccountManagerGUI:
             return
         account_id = values[0]
         region_display = values[2]
-        from .utils import REGION_MAP
         region = REGION_MAP.get(region_display, region_display)
         # Find the next item to select
         all_items = self.tree.get_children()
@@ -692,7 +688,6 @@ class LeagueAccountManagerGUI:
         self.display_accounts(filtered)
 
     def can_play_with(self, acc, friend_tier, friend_division):
-        from .utils import TIER_ORDER
         def division_to_int(division):
             roman_map = {'I': 1, 'II': 2, 'III': 3, 'IV': 4}
             if isinstance(division, str):
@@ -826,9 +821,8 @@ class LeagueAccountManagerGUI:
         else:
             account_id = values[0]
             region_display = values[2]
-            from .utils import REGION_MAP
             region = REGION_MAP.get(region_display, region_display)
-            password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}')
+            password = keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}')
             if password:
                 pyperclip.copy(password)
         self._copy_counter += 1
@@ -844,9 +838,8 @@ class LeagueAccountManagerGUI:
             return
         account_id = values[0]
         region_display = values[2]
-        from .utils import REGION_MAP
         region = REGION_MAP.get(region_display, region_display)
-        password = keyring.get_password('LeagueAccounts', f'{region}:{account_id}')
+        password = keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}')
         self.root.after(100, lambda: self._do_autotype(account_id, password))
 
     def _do_autotype(self, account_id, password):
