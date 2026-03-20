@@ -1,3 +1,4 @@
+import json
 import tkinter as tk
 from tkinter import ttk, messagebox
 import tkinter.font as tkfont
@@ -164,6 +165,14 @@ class LeagueAccountManagerGUI:
         self.refresh_button = ctk.CTkButton(self.action_frame, text='Refresh Ranks',
                                             command=self.refresh_all_ranks, width=140)
         self.refresh_button.pack(pady=5)
+
+        self.export_button = ctk.CTkButton(self.action_frame, text='Export Data',
+                                            command=self.export_data, width=140)
+        self.export_button.pack(pady=5)
+
+        self.import_button = ctk.CTkButton(self.action_frame, text='Import Data',
+                                            command=self.import_data, width=140)
+        self.import_button.pack(pady=5)
 
         self.help_button = ctk.CTkButton(self.action_frame, text='Shortcuts Help',
                                          command=self.show_shortcuts_help, width=140)
@@ -876,6 +885,44 @@ class LeagueAccountManagerGUI:
             pyperclip.copy(str(password))
             pyautogui.hotkey('ctrl', 'v')
         pyautogui.press('enter')
+
+    def export_data(self):
+        from tkinter import filedialog
+        file_path = filedialog.asksaveasfilename(
+            initialfile='credentials',
+            defaultextension='.json',
+            filetypes=[('JSON files', '*.json'), ('All files', '*.*')],
+            title='Export Accounts Data'
+        )
+        if not file_path:
+            return
+        try:
+            json_str = self.manager.export_accounts()
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(json_str)
+            messagebox.showinfo('Export Successful', f'Accounts exported to:\n{file_path}')
+        except Exception as e:
+            messagebox.showerror('Export Error', f'Failed to export accounts.\n\nError: {str(e)}')
+
+    def import_data(self):
+        from tkinter import filedialog
+        file_path = filedialog.askopenfilename(
+            filetypes=[('JSON files', '*.json'), ('All files', '*.*')],
+            title='Import Accounts Data'
+        )
+        if not file_path:
+            return
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                json_str = f.read()
+            added, skipped = self.manager.import_accounts(json_str)
+            self.display_accounts(self.manager.accounts)
+            messagebox.showinfo('Import Successful',
+                                f'Import complete.\n\nAccounts added: {added}\nAccounts skipped (duplicates): {skipped}')
+        except json.JSONDecodeError:
+            messagebox.showerror('Import Error', 'Invalid JSON file. Please check the file format.')
+        except Exception as e:
+            messagebox.showerror('Import Error', f'Failed to import accounts.\n\nError: {str(e)}')
 
     def show_shortcuts_help(self):
         help_text = (

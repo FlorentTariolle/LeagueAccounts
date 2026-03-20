@@ -1,6 +1,7 @@
 import keyring
 import json
 import os
+from dataclasses import asdict
 from .utils import get_accounts_file, rank_sort_key
 from .models import Account
 
@@ -91,4 +92,65 @@ class AccountManager:
             acc.reached_last_season = rank_info.get('reached_last_season', 'N/A')
             acc.finished_last_season = rank_info.get('finished_last_season', 'N/A')
         self.accounts.sort(key=lambda a: rank_sort_key(a.tier, a.division, a.lp))
-        self.save_accounts() 
+        self.save_accounts()
+
+    def export_accounts(self):
+        """Export all accounts including passwords as a JSON string."""
+        export_data = []
+        for acc in self.accounts:
+            acc_dict = asdict(acc)
+            # Retrieve password from keyring if not already loaded
+            if not acc_dict.get('password'):
+                try:
+                    acc_dict['password'] = keyring.get_password(
+                        KEYRING_SERVICE, f'{acc.region}:{acc.account_id}'
+                    ) or ''
+                except Exception:
+                    acc_dict['password'] = ''
+            export_data.append(acc_dict)
+        return json.dumps(export_data, indent=2)
+
+    def import_accounts(self, json_str):
+        """Import accounts from a JSON string. Returns (added_count, skipped_count)."""
+        data = json.loads(json_str)
+        if not isinstance(data, list):
+            raise ValueError("Expected a JSON array of accounts.")
+        added = 0
+        skipped = 0
+        for acc_dict in data:
+            account_id = acc_dict.get('account_id', '').strip()
+            region = acc_dict.get('region', '').strip()
+            if not account_id or not region:
+                skipped += 1
+                continue
+            # Skip duplicates
+            if any(a.account_id.lower() == account_id.lower() and a.region == region
+                   for a in self.accounts):
+                skipped += 1
+                continue
+            password = acc_dict.pop('password', '')
+            acc = Account(
+                account_id=account_id,
+                name=acc_dict.get('name', ''),
+                region=region,
+                region_display=acc_dict.get('region_display', region),
+                description=acc_dict.get('description', ''),
+                tier=acc_dict.get('tier', 'Unranked'),
+                division=acc_dict.get('division', ''),
+                lp=acc_dict.get('lp', ''),
+                level=acc_dict.get('level', ''),
+                reached_last_season=acc_dict.get('reached_last_season', 'N/A'),
+                finished_last_season=acc_dict.get('finished_last_season', 'N/A'),
+                password=password
+            )
+            if password:
+                try:
+                    keyring.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
+                except Exception:
+                    pass
+            self.accounts.append(acc)
+            added += 1
+        self.accounts.sort(key=lambda a: rank_sort_key(a.tier, a.division, a.lp))
+        if added > 0:
+            self.save_accounts()
+        return added, skipped
