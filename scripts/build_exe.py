@@ -123,7 +123,7 @@ def verify_build():
     """Verify the build was successful"""
     print("Verifying build...")
     
-    exe_path = Path("config/dist/leagueaccounts.exe")
+    exe_path = Path("config/dist/LeagueAccounts.exe")
     if exe_path.exists():
         size_mb = exe_path.stat().st_size / (1024 * 1024)
         print(f"SUCCESS: Executable created: {exe_path} ({size_mb:.1f} MB)")
@@ -164,10 +164,8 @@ def main():
         sys.exit(1)
     
     print("\nSUCCESS: Build completed successfully!")
-    print(f"Executable location: {Path('config/dist/leagueaccounts.exe').absolute()}")
-    print("\nNext steps:")
-    print("1. Test the executable")
-    print("2. Run scripts/create_installer.py to create the installer")
+    print(f"Executable location: {Path('config/dist/LeagueAccounts.exe').absolute()}")
+    print("\nNext step: test the executable")
 
 if __name__ == "__main__":
     main()
