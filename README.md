@@ -30,8 +30,6 @@ Download the latest release from GitHub:
 # Install dependencies
 pip install -r requirements.txt
 
-# Build executable and installer
-python scripts/build_all.py
+# Build executable
+python scripts/build_exe.py
 ```
-
-For detailed build instructions, see [BUILD.md](docs/BUILD.md).
