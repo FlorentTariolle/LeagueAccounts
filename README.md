@@ -16,14 +16,6 @@ Download the latest release from GitHub:
 
 [Download Latest Release](https://github.com/FlorentTariolle/LeagueAccounts/releases/latest)
 
-## Usage
-
-1. Launch LeagueAccounts.
-2. Add your League of Legends accounts to the tool.
-3. Use the interface to select an account and switch instantly.
-4. Press `CTRL+SHIFT+V` to auto-fill credentials in the Riot Client.
-5. View your account ranks automatically fetched by the tool.
-
 ## Building from Source
 
 ```bash
