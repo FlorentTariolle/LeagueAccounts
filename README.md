@@ -1,6 +1,6 @@
 # LeagueAccounts
 
-Welcome to **LeagueAccounts**, a tool designed to simplify managing multiple **League of Legends** accounts in one place. With fast account switching, secure password storage using Windows' built-in credential system, and convenient features like automatic credential entry and rank fetching, LeagueAccounts makes handling multiple accounts seamless and efficient.
+Welcome to **LeagueAccounts**, a tool designed to simplify managing multiple **League of Legends** accounts in one place. With secure password storage using Windows' built-in credential system and convenient features like automatic credential entry and rank fetching, LeagueAccounts makes handling multiple accounts seamless and efficient.
 
 ## Features
 
