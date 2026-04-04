@@ -589,6 +589,26 @@ class LeagueAccountManagerGUI:
         account_id = values[0]
         pyperclip.copy(account_id)
 
+    def _find_account(self, account_id, region_display):
+        """Find an account in memory by account_id and region_display."""
+        region = REGION_MAP.get(region_display, region_display)
+        for acc in self.manager.accounts:
+            if acc.account_id == account_id and acc.region in (region, region_display):
+                return acc
+        return None
+
+    def _get_password(self, account_id, region_display):
+        """Get password from in-memory account, falling back to keyring."""
+        acc = self._find_account(account_id, region_display)
+        if acc and acc.password:
+            return acc.password
+        # Fallback to keyring if in-memory password is empty
+        region = REGION_MAP.get(region_display, region_display)
+        try:
+            return keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}') or ''
+        except Exception:
+            return ''
+
     def copy_selected_password(self):
         _lazy_imports()
         selected = self.tree.selection()
@@ -600,8 +620,7 @@ class LeagueAccountManagerGUI:
             return
         account_id = values[0]
         region_display = values[2]
-        region = REGION_MAP.get(region_display, region_display)
-        password = keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}')
+        password = self._get_password(account_id, region_display)
         if password:
             pyperclip.copy(password)
 
@@ -846,8 +865,7 @@ class LeagueAccountManagerGUI:
         else:
             account_id = values[0]
             region_display = values[2]
-            region = REGION_MAP.get(region_display, region_display)
-            password = keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}')
+            password = self._get_password(account_id, region_display)
             if password:
                 pyperclip.copy(password)
         self._copy_counter += 1
@@ -863,8 +881,7 @@ class LeagueAccountManagerGUI:
             return
         account_id = values[0]
         region_display = values[2]
-        region = REGION_MAP.get(region_display, region_display)
-        password = keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}')
+        password = self._get_password(account_id, region_display)
         self.root.after(100, lambda: self._do_autotype(account_id, password))
 
     def _do_autotype(self, account_id, password):

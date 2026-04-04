@@ -99,7 +99,7 @@ class AccountManager:
         export_data = []
         for acc in self.accounts:
             acc_dict = asdict(acc)
-            # Retrieve password from keyring if not already loaded
+            # Use in-memory password; fall back to keyring if empty
             if not acc_dict.get('password'):
                 try:
                     acc_dict['password'] = keyring.get_password(
@@ -107,6 +107,9 @@ class AccountManager:
                     ) or ''
                 except Exception:
                     acc_dict['password'] = ''
+            # Also update in-memory account if we recovered the password
+            if acc_dict['password'] and not acc.password:
+                acc.password = acc_dict['password']
             export_data.append(acc_dict)
         return json.dumps(export_data, indent=2)
 
