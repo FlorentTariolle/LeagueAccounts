@@ -1,4 +1,6 @@
 import keyring
+from keyring.backends.Windows import WinVaultKeyring
+keyring.set_keyring(WinVaultKeyring())
 import json
 import os
 from dataclasses import asdict
