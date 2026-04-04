@@ -1,6 +1,4 @@
-import keyring
-from keyring.backends.Windows import WinVaultKeyring
-keyring.set_keyring(WinVaultKeyring())
+from . import windows_credential as cred
 import json
 import os
 from dataclasses import asdict
@@ -25,7 +23,7 @@ class AccountManager:
                     region = acc.get('region')
                     account_id = acc.get('account_id')
                     try:
-                        password = keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}') or ''
+                        password = cred.get_password(KEYRING_SERVICE, f'{region}:{account_id}') or ''
                     except Exception:
                         password = ''
                     acc_obj = Account(
@@ -57,7 +55,7 @@ class AccountManager:
                 json.dump(to_save, f, indent=2)
         except PermissionError as e:
             import tkinter.messagebox as mb
-            mb.showerror('Permission Error', 
+            mb.showerror('Permission Error',
                         f'Cannot save accounts file. Permission denied.\n\n'
                         f'File: {self.accounts_file}\n'
                         f'Error: {str(e)}\n\n'
@@ -65,7 +63,7 @@ class AccountManager:
             raise
         except Exception as e:
             import tkinter.messagebox as mb
-            mb.showerror('Save Error', 
+            mb.showerror('Save Error',
                         f'Failed to save accounts file.\n\n'
                         f'File: {self.accounts_file}\n'
                         f'Error: {str(e)}')
@@ -79,7 +77,7 @@ class AccountManager:
     def delete_account(self, account_id, region):
         self.accounts = [acc for acc in self.accounts if not (acc.account_id == account_id and acc.region == region)]
         try:
-            keyring.delete_password(KEYRING_SERVICE, f'{region}:{account_id}')
+            cred.delete_password(KEYRING_SERVICE, f'{region}:{account_id}')
         except Exception:
             pass
         self.save_accounts()
@@ -101,10 +99,10 @@ class AccountManager:
         export_data = []
         for acc in self.accounts:
             acc_dict = asdict(acc)
-            # Use in-memory password; fall back to keyring if empty
+            # Use in-memory password; fall back to credential store if empty
             if not acc_dict.get('password'):
                 try:
-                    acc_dict['password'] = keyring.get_password(
+                    acc_dict['password'] = cred.get_password(
                         KEYRING_SERVICE, f'{acc.region}:{acc.account_id}'
                     ) or ''
                 except Exception:
@@ -150,7 +148,7 @@ class AccountManager:
             )
             if password:
                 try:
-                    keyring.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
+                    cred.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
                 except Exception:
                     pass
             self.accounts.append(acc)

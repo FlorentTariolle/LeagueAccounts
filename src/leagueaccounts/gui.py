@@ -11,9 +11,8 @@ ctk.set_default_color_theme("blue")
 
 # Lazy imports for heavy dependencies
 def _lazy_imports():
-    global pyperclip, keyring, pyautogui, time, Image, ImageTk
+    global pyperclip, pyautogui, time, Image, ImageTk
     import pyperclip
-    import keyring
     try:
         import pyautogui
     except ImportError as e:
@@ -26,6 +25,7 @@ from pathlib import Path
 import sys
 
 from .account_manager import AccountManager, KEYRING_SERVICE
+from . import windows_credential as cred
 from .rank_fetcher import RankFetcher
 from .utils import REGION_DISPLAY_NAMES, TIER_ORDER, REGION_MAP
 from .models import Account
@@ -360,7 +360,7 @@ class LeagueAccountManagerGUI:
 
         try:
             _lazy_imports()
-            keyring.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
+            cred.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
 
             new_acc = Account(
                 account_id=account_id,
@@ -376,7 +376,7 @@ class LeagueAccountManagerGUI:
             messagebox.showerror('Add Account Error',
                                f'Failed to add account.\n\n'
                                f'Error: {str(e)}\n\n'
-                               f'This might be a keyring issue. Please check:\n'
+                               f'This might be a Windows Credential Manager issue. Please check:\n'
                                f'1. Windows Credential Manager access\n'
                                f'2. User permissions\n'
                                f'3. Try running as administrator')
@@ -471,7 +471,7 @@ class LeagueAccountManagerGUI:
                     continue
 
                 try:
-                    keyring.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
+                    cred.set_password(KEYRING_SERVICE, f'{region}:{account_id}', password)
                     new_acc = Account(
                         account_id=account_id,
                         name=name,
@@ -598,14 +598,14 @@ class LeagueAccountManagerGUI:
         return None
 
     def _get_password(self, account_id, region_display):
-        """Get password from in-memory account, falling back to keyring."""
+        """Get password from in-memory account, falling back to credential store."""
         acc = self._find_account(account_id, region_display)
         if acc and acc.password:
             return acc.password
-        # Fallback to keyring if in-memory password is empty
+        # Fallback to credential store if in-memory password is empty
         region = REGION_MAP.get(region_display, region_display)
         try:
-            return keyring.get_password(KEYRING_SERVICE, f'{region}:{account_id}') or ''
+            return cred.get_password(KEYRING_SERVICE, f'{region}:{account_id}') or ''
         except Exception:
             return ''
 
