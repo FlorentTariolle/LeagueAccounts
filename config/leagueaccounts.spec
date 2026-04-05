@@ -8,7 +8,6 @@ a = Analysis(
     binaries=[],
     datas=[
         ('../assets/icons/icon.ico', 'assets/icons'),
-        ('../assets/icons/blue_icon.ico', 'assets/icons'),
         ('../assets/ranks_compatibilities.webp', 'assets'),
     ],
     hiddenimports=[

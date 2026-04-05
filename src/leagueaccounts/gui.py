@@ -43,7 +43,7 @@ def get_asset_path(relative_path):
 
 # Path to local assets
 RANKS_IMAGE_PATH = get_asset_path("assets/ranks_compatibilities.webp")
-WINDOW_ICON_PATH = get_asset_path("assets/icons/blue_icon.ico")
+WINDOW_ICON_PATH = get_asset_path("assets/icons/icon.ico")
 
 # Dark theme colors
 COLORS = {
