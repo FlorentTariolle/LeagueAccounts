@@ -44,8 +44,7 @@ def _target_name(service, username):
     return f'{username}@{service}'
 
 
-def get_password(service, username):
-    target = _target_name(service, username)
+def _read_credential(target):
     cred_ptr = ctypes.POINTER(_CREDENTIAL)()
     if not advapi32.CredReadW(target, CRED_TYPE_GENERIC, 0, ctypes.byref(cred_ptr)):
         return None
@@ -53,16 +52,27 @@ def get_password(service, username):
         blob = cred_ptr.contents.CredentialBlob
         size = cred_ptr.contents.CredentialBlobSize
         raw = bytes(blob[i] for i in range(size))
-        return raw.decode('utf-16-le')
+        return raw.decode('utf-16-le'), cred_ptr.contents.UserName
     finally:
         advapi32.CredFree(cred_ptr)
 
 
-def set_password(service, username, password):
-    target = _target_name(service, username)
+def get_password(service, username):
+    # Try compound name first: {username}@{service}
+    result = _read_credential(_target_name(service, username))
+    if result:
+        return result[0]
+    # Fallback: keyring stores the last-added credential at just {service}
+    result = _read_credential(service)
+    if result and result[1] == username:
+        return result[0]
+    return None
+
+
+def _write_credential(target, username, password):
     blob = password.encode('utf-16-le')
     blob_type = ctypes.c_byte * len(blob)
-    cred = _CREDENTIAL(
+    c = _CREDENTIAL(
         Type=CRED_TYPE_GENERIC,
         TargetName=target,
         UserName=username,
@@ -70,8 +80,19 @@ def set_password(service, username, password):
         CredentialBlob=blob_type(*blob),
         Persist=CRED_PERSIST_LOCAL_MACHINE,
     )
-    if not advapi32.CredWriteW(ctypes.byref(cred), 0):
+    if not advapi32.CredWriteW(ctypes.byref(c), 0):
         raise ctypes.WinError(ctypes.get_last_error())
+
+
+def set_password(service, username, password):
+    # Move any existing simple-name credential to compound name (matches keyring behavior)
+    existing = _read_credential(service)
+    if existing:
+        existing_pw, existing_user = existing
+        if existing_user != username:
+            _write_credential(_target_name(service, existing_user), existing_user, existing_pw)
+    # Always store under compound name
+    _write_credential(_target_name(service, username), username, password)
 
 
 def delete_password(service, username):
